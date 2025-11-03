@@ -20,12 +20,10 @@ tradutor/
 ├── api/                  # Versão com API LibreTranslate
 │   ├── translate_CLI.py  # CLI
 │   ├── app.py            # Web app Flask
-│   └── requirements.txt
 │
 ├── deep_translator/      # Versão usando deep_translator
 │   ├── translate_cli.py  # CLI
 │   ├── app.py            # Web app Flask
-│   └── requirements.txt
 │
 └── README.md
 ```
