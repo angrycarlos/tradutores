@@ -98,7 +98,7 @@ def api_translate():
     if not text:
         return f.jsonify({'error': 'Campo "text" é obrigatório.'}), 400
     
-    translated = call_translate(q,src,tgt)
+    translated = call_translate(text,src,tgt)
     response = {'translated': translated}
 
     if tts_enabled and not translated.startswith('Erro'):
