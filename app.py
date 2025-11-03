@@ -9,7 +9,7 @@ app = f.Flask(__name__)
 TEMPLATE = """
 <!doctype html>
 <title>Tradutor LibreTranslate</title>
-<h1>Tradutor (LibreTranslate)</h1>
+<h1>Tradutor (Carlos Translate)</h1>
 <form method="post" action="/" >
   <label>Texto:</label><br>
   <textarea name="q" rows="4" cols="60">{{q}}</textarea><br>
