@@ -2,6 +2,7 @@ import flask as f
 from gtts import gTTS
 import io
 from deep_translator import GoogleTranslator as gl
+import base64
 
 app = f.Flask(__name__)
 
@@ -31,7 +32,7 @@ TEMPLATE = """
   <p><a href="{{ url_for('audio') }}">Baixar/Ouvir áudio (MP3)</a></p>
 {% endif %}
 {% endif %}
-""" # Chat que passou, conferir depois e melhorar o necessário
+""" 
 
 ultima_traducao = {'audio_bytes': None}
 
@@ -40,7 +41,7 @@ def call_translate(q, source, target):
         if not source:
             source = 'auto'
         if not target:
-            source = 'pt'
+            target = 'pt'
         return gl(source=source, target=target).translate(q)
     except Exception as e:
         return 'Erro ao traduzir: {}'.format(e)
@@ -84,5 +85,33 @@ def audio():
     if not data:
         return f.redirect(f.url_for('index'))
     return f.send_file(io.BytesIO(data), mimetype='audio/mpeg', as_attachment=True, download_name='tradução.mp3')
+
+
+@app.route('/api/translate/', methods=['POST'])
+def api_translate():
+    data = f.request.get_json()
+    text = data.get('text', '')
+    src = data.get('source', 'auto')
+    tgt = data.get('target', 'pt')
+    tts_enabled = data.get('tts', False)
+
+    if not text:
+        return f.jsonify({'error': 'Campo "text" é obrigatório.'}), 400
+    
+    translated = call_translate(q,src,tgt)
+    response = {'translated': translated}
+
+    if tts_enabled and not translated.startswith('Erro'):
+        try:
+            tts_obj = gTTS(translated, lang=tgt if tgt != 'auto' else 'pt')
+            mp3_fp = io.BytesIO()
+            tts_obj.write_to_fp(mp3_fp)
+            mp3_fp.seek(0)
+            response['audio_base64'] = base64.b64encode(mp3_fp.read()).decode('utf-8')
+        except Exception as e:
+            response['tts_error'] = str(e)
+    
+    return f.jsonify(response)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
